@@ -122,6 +122,11 @@ section h3 {
   color: #8e0000;
 }
 
+.participant-delete:focus {
+  outline: 2px solid #c62828;
+  outline-offset: 2px;
+}
+
 .no-participants {
   font-style: italic;
   color: #999;
