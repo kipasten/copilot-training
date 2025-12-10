@@ -94,6 +94,6 @@ def test_signup_respects_max_participants():
         assert response.status_code == 200
     
     # Try to add one more participant - should fail
-    response = client.post(f"/activities/Chess%20Club/signup?email=overflow@mergington.edu")
+    response = client.post("/activities/Chess%20Club/signup?email=overflow@mergington.edu")
     assert response.status_code == 400
     assert response.json()["detail"] == "Activity is at full capacity"
