@@ -61,3 +61,39 @@ def test_unregister_removes_participant_and_handles_missing():
     missing = client.delete(f"/activities/Chess%20Club/unregister?email={email}")
     assert missing.status_code == 404
     assert missing.json()["detail"] == "Student not registered for this activity"
+
+
+def test_unregister_handles_invalid_activity():
+    client = get_client()
+    response = client.delete(f"/activities/NonExistent/unregister?email=test@example.com")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Activity not found"
+
+
+def test_signup_requires_valid_email():
+    client = get_client()
+    response = client.post("/activities/Chess%20Club/signup?email=")
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Email is required"
+
+
+def test_unregister_requires_valid_email():
+    client = get_client()
+    response = client.delete("/activities/Chess%20Club/unregister?email=")
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Email is required"
+
+
+def test_signup_respects_max_participants():
+    client = get_client()
+    # Chess Club has max_participants of 12, and starts with 2 participants
+    # Fill it to capacity
+    for i in range(10):
+        email = f"student{i}@mergington.edu"
+        response = client.post(f"/activities/Chess%20Club/signup?email={email}")
+        assert response.status_code == 200
+    
+    # Try to add one more participant - should fail
+    response = client.post("/activities/Chess%20Club/signup?email=overflow@mergington.edu")
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Activity is at full capacity"
